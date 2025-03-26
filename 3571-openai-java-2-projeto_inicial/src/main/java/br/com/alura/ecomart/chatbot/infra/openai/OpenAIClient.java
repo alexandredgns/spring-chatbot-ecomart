@@ -17,12 +17,12 @@ public class OpenAIClient {
     private final String apiKey;
     private final OpenAiService service;
 
-    public OpenAIClient(@Value("${app.openai.api.key}") String apiKey) {
+    public OpenAIClient(@Value("${OPENAI_KEY}") String apiKey) {
         this.apiKey = apiKey;
         this.service = new OpenAiService(apiKey, Duration.ofSeconds(60));
     }
 
-    public String enviarRequisicaoChatCompletion(DadosRequisicaoChatCompletion dados) {
+    public String enviarRequisicaoChatCompletion(RequestDataChatCompletion dados) {
         var request = ChatCompletionRequest
                 .builder()
                 .model("gpt-4-1106-preview")
