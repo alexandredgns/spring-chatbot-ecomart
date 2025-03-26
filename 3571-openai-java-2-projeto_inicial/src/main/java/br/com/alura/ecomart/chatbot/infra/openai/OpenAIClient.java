@@ -22,22 +22,22 @@ public class OpenAIClient {
         this.service = new OpenAiService(apiKey, Duration.ofSeconds(60));
     }
 
-    public String enviarRequisicaoChatCompletion(RequestDataChatCompletion dados) {
+    public String requestChatCompletion(RequestDataChatCompletion data) {
         var request = ChatCompletionRequest
                 .builder()
                 .model("gpt-4-1106-preview")
                 .messages(Arrays.asList(
                         new ChatMessage(
                                 ChatMessageRole.SYSTEM.value(),
-                                dados.promptSistema()),
+                                data.systemPrompt()),
                         new ChatMessage(
                                 ChatMessageRole.USER.value(),
-                                dados.promptUsuario())))
+                                data.userPrompt())))
                 .build();
 
-        var segundosParaProximaTentiva = 5;
-        var tentativas = 0;
-        while (tentativas++ != 5) {
+        var secondsForNextAttempt = 5;
+        var attempts = 0;
+        while (attempts++ != 5) {
             try {
                 return service
                         .createChatCompletion(request)
@@ -46,11 +46,11 @@ public class OpenAIClient {
             } catch (OpenAiHttpException ex) {
                 var errorCode = ex.statusCode;
                 switch (errorCode) {
-                    case 401 -> throw new RuntimeException("Erro com a chave da API!", ex);
+                    case 401 -> throw new RuntimeException("API key error!", ex);
                     case 429, 500, 503 -> {
                         try {
-                            Thread.sleep(1000 * segundosParaProximaTentiva);
-                            segundosParaProximaTentiva *= 2;
+                            Thread.sleep(1000 * secondsForNextAttempt);
+                            secondsForNextAttempt *= 2;
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -58,7 +58,7 @@ public class OpenAIClient {
                 }
             }
         }
-        throw new RuntimeException("API Fora do ar! Tentativas finalizadas sem sucesso!");
+        throw new RuntimeException("API down! Couldn't connect!");
     }
 
 }

@@ -1,5 +1,6 @@
 package br.com.alura.ecomart.chatbot.web.controller;
 
+import br.com.alura.ecomart.chatbot.domain.service.ChatBotService;
 import br.com.alura.ecomart.chatbot.web.dto.QuestionDto;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,12 @@ public class ChatController {
 
     private static final String URL_CHAT = "chat";
 
+    private ChatBotService service;
+
+    public ChatController(ChatBotService service) {
+        this.service = service;
+    }
+
     @GetMapping
     public String loadPageChatbot() {
         return URL_CHAT;
@@ -18,7 +25,7 @@ public class ChatController {
     @PostMapping
     @ResponseBody
     public String answerQuestion(@RequestBody QuestionDto dto) {
-        return dto.question();
+        return service.answerQuestion(dto.question());
     }
 
     @GetMapping("limpar")
